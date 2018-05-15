@@ -1,0 +1,23 @@
+.animateEmpty{
+		animation: animateIfEmpty 1s;
+}
+
+@keyframes animateIfEmpty{
+    0%,20%,40%,60%,80%{  
+    		transform: translateX(-5px);
+  		}
+   	10%,30%,50%,70%,90%,100%{  
+	 	 transform: translateX(5px);
+  		}	
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
