@@ -1,0 +1,108 @@
+<html>
+<head>
+<title>XML Validator</title>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.9/angular-material.min.css">
+<link rel="stylesheet" href = "css/XmlValidatorCSS.css" />
+<link rel="stylesheet" href = "css/XmlValidationAnimation.css" />
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-animate.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-aria.min.js"></script>
+  
+<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.9/angular-material.min.js"></script>
+
+<script src = "js/XmlValidateController.js"></script>
+<script src = "js/FileDragDropDirective.js"></script>
+<script src = "js/XmlValidateService.js"></script>
+</head>
+
+<body ng-app="XmlValidateApp" ng-controller="XmlValidateController">
+<div class="heading">XML VALIDATOR</div>
+<div class="container">
+
+  <md-radio-group class="md-primary" ng-model="validationmethod">
+
+      <md-radio-button value="Validate With Files" checked="true">Validate With Files</md-radio-button>
+      <md-radio-button value="Validate with URL"> Validate with URL </md-radio-button>
+
+    </md-radio-group>
+  
+
+<div id="dragdropschema" class='fileUpload' file-drag-drop filefor = "schema" allowedextn = "[xsd]" 
+   uploadedschemafiles="schemafilelist" ng-show = "validationmethod=='Validate With Files'"> Drag and Drop xsd / wsdl files <br /> 
+   <a id="schemaLink" ng-show="schemaLinkShow" ng-click="triggerupload('schema')">or choose files </a> <br />
+   </div>
+   
+   <input type = "file" id = "schemafileuploadhidden" file-drag-drop  
+   filefor = "schema" allowedextn = "[xsd,wsdl]" showmsg="showmsg" messagestring="msg"
+   uploadedschemafiles="schemafilelist"/>      
+   
+  <ul class="missingschemas" ng-show="missingschemamsg.length>0 && validationmethod=='Validate With Files'" 
+     ng-style="missingschemamsg.indexOf('Error')>-1?{'background-color':'#FFE5E5','color':'#e50000'}:{'background-color':'#E5FFE5','color':'#339900'}">
+     <img ng-src = "{{missingschemamsg.indexOf('Error')>-1 && 'images/cross.png' || 'images/green_tick.png'}}"/> 
+<span ng-bind="missingschemamsg"></span><span id="missingschemasremove" ng-click="remove('missingschemas')">x</span>
+<li ng-repeat ="name in missingschemamsglist"><img src="images/text-file-icon.png" />&nbsp;&nbsp; {{name}}</li>
+</ul> 
+         
+        
+<ul class="schemaul" ng-show="schemafilelist.length>0 && validationmethod=='Validate With Files'">
+ <li ng-repeat="file in schemafilelist | orderBy: 'name'"><img src="images/text-file-icon.png" />&nbsp;&nbsp; 
+   {{file.name}} <span ng-click="removefile($index,'schema')">x</span></li>
+</ul>
+<a class="dependentschema" ng-show="schemafilelist.length>0 && validationmethod=='Validate With Files' && !isDepSchemaloading" 
+     ng-click="validateSchemas()">Check for dependent schema</a>
+<md-progress-linear md-mode="indeterminate" ng-show="isDepSchemaloading"></md-progress-linear>     
+
+ <md-input-container class="md-block" id = "schemaUrlInput" flex-gt-sm="" ng-show = "validationmethod=='Validate with URL'">
+        <label>Enter Schema URL</label>
+        <input ng-model = "schemaUrl" ng-blur='checkValidSchemaUrl()' ng-change="incorrectinputschemamsg=''">
+        <br />
+        <mat-hint><small><i>URL should be in format http://abc?wsdl or http://abc.xsd. https is not supported</i></small></mat-hint>
+      </md-input-container>
+<div class="incorrectinputschemamsg" ng-show="incorrectinputschemamsg.length>0 && validationmethod=='Validate with URL'" 
+     ng-style="incorrectinputschemamsg.indexOf('Error')>-1?{'background-color':'#FFE5E5','color':'#e50000'}:{'background-color':'#E5FFE5','color':'#339900'}">
+     <img ng-src = "{{incorrectinputschemamsg.indexOf('Error')>-1 && 'images/cross.png' || 'images/green_tick.png'}}"/>
+<span ng-bind="incorrectinputschemamsg"></span>
+</div>
+
+<div id="dragdropxml" file-drag-drop filefor = "xml" allowedextn = "[xml]" 
+   uploadedxmlfiles="xmlfilelist" class='fileUpload'> Drag and Drop xml file 
+   <br /> <a id="xmllink" ng-show="xmlLinkShow" ng-click="triggerupload('xml')">or choose file </a></div>
+   
+   <input type = "file" id = "xmlfileuploadhidden" file-drag-drop filefor = "xml" allowedextn = "[xml]"
+   uploadedxmlfiles="xmlfilelist"/>
+   
+<ul class="xmlul" ng-show="xmlfilelist.length>0">
+ <li ng-repeat="file in xmlfilelist | orderBy: 'name'"><img src="images/text-file-icon.png" />&nbsp;&nbsp; 
+  {{file.name}} <span ng-click="removefile($index,'xml')">x</span></li>
+</ul>
+
+<div class="errormsgxml" ng-show="errormsgxml.length>0" 
+     ng-style="errormsgxml.indexOf('Error')>-1?{'background-color':'#FFE5E5','color':'#e50000'}:{'background-color':'#E5FFE5','color':'#339900'}">
+     <img ng-src = "{{errormsgxml.indexOf('Error')>-1 && 'images/cross.png' || 'images/green_tick.png'}}"/>
+<span ng-bind="errormsgxml"></span>
+</div>
+
+<button ng-click="validationmethod=='Validate With Files' && validateWithFiles();
+         validationmethod=='Validate with URL' && validateWithUrl()" ng-show="!isValidationInProgress">Validate</button>
+ <md-progress-circular md-mode="indeterminate" ng-show="isValidationInProgress"></md-progress-circular>         
+
+<div class='messages' 
+    ng-style="msginfo.indexOf('Error')>-1?{'background-color':'#FFE5E5','color':'#e50000','border':'1px solid #e50000'}
+    :{'background-color':'#E5FFE5','color':'#339900','border':'1px solid #339900'}">
+    <img ng-src = "{{msginfo.indexOf('Error')>-1 && 'images/cross.png' || 'images/green_tick.png'}}"/>
+    <span ng-bind="msginfo"></span>
+   </div>
+ </div>  
+</body>
+
+</html>
