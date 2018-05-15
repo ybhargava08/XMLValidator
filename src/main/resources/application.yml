@@ -1,0 +1,8 @@
+spring:
+ #resources:
+  #static-locations: file:///C:/Users/ybhargava/SpringCloud/UIXmlValidator/src/main/resources/static
+  #cache:
+   #period: 0
+ mvc:
+  view:
+   suffix: .html
