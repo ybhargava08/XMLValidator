@@ -6,3 +6,9 @@ spring:
  mvc:
   view:
    suffix: .html
+logging:
+ level:
+  org:
+   springframework:
+    web: INFO
+ file: xmlvalidator.log
