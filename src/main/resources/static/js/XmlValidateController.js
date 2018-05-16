@@ -11,7 +11,7 @@ xmlValidatorApp.controller('XmlValidateController',['$scope','$timeout','$window
     $scope.isValidationInProgress=false;
 	
 	$scope.validateWithFiles = function($event) {
-		console.log("this is executed -> validateWithFiles");
+		//console.log("this is executed -> validateWithFiles");
 		if($scope.schemafilelist && $scope.schemafilelist.length>0 ) {
 			if($scope.xmlfilelist && $scope.xmlfilelist.length>0){
 				 $scope.isValidationInProgress=true;
@@ -69,10 +69,10 @@ xmlValidatorApp.controller('XmlValidateController',['$scope','$timeout','$window
 		if('schema' === filetype && $scope.schemafilelist) {
 			 $scope.missingschemamsg = '';
 			 $scope.schemafilelist.splice($index,1);
-			 console.log("schemalist after splice: "+$scope.schemafilelist+" "+$scope.schemafilelist.length);
+			 //console.log("schemalist after splice: "+$scope.schemafilelist+" "+$scope.schemafilelist.length);
 		}else if('xml' === filetype && $scope.xmlfilelist) {
 			 $scope.xmlfilelist.splice($index,1);
-			 console.log("xmlist after splice: "+$scope.xmlfilelist+" "+$scope.xmlfilelist.length);
+			 //console.log("xmlist after splice: "+$scope.xmlfilelist+" "+$scope.xmlfilelist.length);
 		}
 		
 	}
@@ -133,22 +133,27 @@ xmlValidatorApp.controller('XmlValidateController',['$scope','$timeout','$window
 	});
 	
 	function updateMissingSchemaList(data) {
-		
-		console.log('got data: '+data.msg);
+		if($scope.missingschemamsglist) {
+			$scope.missingschemamsglist.length=0;
+		}
+		//console.log('got data: '+data.msg);
 		if(data.msg==='Files Missing') {
 			$scope.missingschemamsg='Error: Following Schemas are missing. Please add them';
 			$scope.missingschemamsglist = data.data;
 			scrollToElement('.missingschemas');
 		}else if(data.msg==='Error') {
 			$scope.missingschemamsg='Error Occured: '+data.data;
-			timedMsg(data,6000);
+			
+			timedMsg(data,6000);			
 			scrollToElement('.missingschemas');
 		}else if(data.msg==='Valid') {
 			$scope.missingschemamsg=data.data;
+			
 			timedMsg(data,6000);
 			scrollToElement('.missingschemas');
 		}else if(data.msg == 'incorrectextnschema') {
 			$scope.missingschemamsg='Error: Only file extn xsd / wsdl are allowed. Some files were not uploaded';
+	
 			timedMsg(data,6000);
 			scrollToElement('.missingschemas');
 		}else if(data.msg == 'incorrectextnxml') {
@@ -157,6 +162,7 @@ xmlValidatorApp.controller('XmlValidateController',['$scope','$timeout','$window
 			scrollToElement('.errormsgxml');
 		}else if(data.msg=='incorrectinputschemamsg') {
 			$scope.incorrectinputschemamsg='Error: Url is not in desired format-> http://abc.xsd or http://abc?wsdl';
+			
 			timedMsg(data,6000);
 			scrollToElement('.incorrectinputschemamsg');
 		}
