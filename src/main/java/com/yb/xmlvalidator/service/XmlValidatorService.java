@@ -96,8 +96,7 @@ public class XmlValidatorService {
 		if(!fileUploadDiffList.isEmpty()) {
 			returnBean = new ReturnBean("Files Missing",fileUploadDiffList);
 		}
-		
-		}finally {
+				}finally {
 			exec.shutdown();
 		}
 		return returnBean;
@@ -105,11 +104,13 @@ public class XmlValidatorService {
 	}
 	
 	private StreamSource[] getSchemaStreamSourceArray(MultipartFile[] schemaFiles) throws IOException {
-		StreamSource[] sourceArray = new StreamSource[schemaFiles.length];
+		List<StreamSource> sourceList = new ArrayList<StreamSource>(schemaFiles.length);
 		for(int i=0;i<schemaFiles.length;i++) {
-			sourceArray[i] = new StreamSource(schemaFiles[i].getInputStream());
+			 if(schemaFiles[i].getOriginalFilename().substring(schemaFiles[i].getOriginalFilename().length()-3).equalsIgnoreCase("xsd")) {
+				 sourceList.add(new StreamSource(schemaFiles[i].getInputStream()));
+			 }
 		}
-		return sourceArray;
+		return sourceList.toArray(new StreamSource[sourceList.size()]);
 	}
 	
 }
