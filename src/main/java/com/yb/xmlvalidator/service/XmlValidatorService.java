@@ -1,6 +1,5 @@
 package com.yb.xmlvalidator.service;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,12 +23,12 @@ import com.yb.xmlvalidator.validation.XMLValidationCore;
 
 @Service
 public class XmlValidatorService {
-
+	
 	@Autowired
 	XMLValidationCore core;
 	
 	public ReturnBean startValidationProcess(List<String> schemaFileNameList, List<String> schemaFileContentList,MultipartFile[] schemaFiles
-			,MultipartFile xmlFile) throws MalformedURLException, IOException, SAXException {
+			,MultipartFile xmlFile) throws MalformedURLException, Exception, SAXException {
 		
 		if(core.isValidSoapEnvelope(xmlFile.getInputStream())) {
 			InputStream strippedXMLStream= core.returnFinalXmlAfterStrippingSoapEnv(new String(xmlFile.getBytes()),xmlFile.getInputStream());
@@ -46,7 +45,7 @@ public class XmlValidatorService {
 		
 	}
 	
-	public ReturnBean validateWithURL(String url,MultipartFile xmlFile) throws MalformedURLException, IOException, SAXException {
+	public ReturnBean validateWithURL(String url,MultipartFile xmlFile) throws MalformedURLException, Exception, SAXException {
 		List<String> xsdList = new ArrayList<String>(3);
 		if(core.isValidSoapEnvelope(xmlFile.getInputStream())) {
 			InputStream strippedXMLStream= core.returnFinalXmlAfterStrippingSoapEnv(new String(xmlFile.getBytes()),xmlFile.getInputStream());
@@ -66,7 +65,7 @@ public class XmlValidatorService {
 		
 	}
 	
-	public ReturnBean validateUploadedSchemas(List<String> schemaFileNameList, List<String> schemaFileContentList) 
+	public ReturnBean validateUploadedSchemas(List<String> schemaFileNameList, List<String> schemaFileContentList) throws InterruptedException, ExecutionException 
 	   {
 		
 		 ReturnBean returnBean = new ReturnBean("Valid","Schema dependency is valid");
@@ -76,21 +75,19 @@ public class XmlValidatorService {
 		ThreadPoolExecutor exec = (ThreadPoolExecutor) Executors.newFixedThreadPool(schemaFileContentList.size());
 		try {
 		schemaFileContentList.forEach(content-> {
-			Future<List<String>> future  = exec.submit(new ValidateandFetchSchemas(content, false, schemaFileNameList));
+			Future<List<String>> future  = exec.submit(new ValidateandFetchSchemas(content, false, schemaFileNameList,core));
 			futureList.add(future);
 			});
 		
 		for(Future<List<String>> future: futureList) {
-			try {
+			
 				List<String> list = future.get();
 				list.forEach(item->{
 					if(!fileUploadDiffList.contains(item)) {
 						fileUploadDiffList.add(item);
 					}
 				});
-			} catch (InterruptedException | ExecutionException e) {
-				returnBean = new ReturnBean("Error",e.getMessage());
-			}
+			
 		}
 		
 		if(!fileUploadDiffList.isEmpty()) {
@@ -103,7 +100,7 @@ public class XmlValidatorService {
 		
 	}
 	
-	private StreamSource[] getSchemaStreamSourceArray(MultipartFile[] schemaFiles) throws IOException {
+	private StreamSource[] getSchemaStreamSourceArray(MultipartFile[] schemaFiles) throws Exception {
 		List<StreamSource> sourceList = new ArrayList<StreamSource>(schemaFiles.length);
 		for(int i=0;i<schemaFiles.length;i++) {
 			 if(schemaFiles[i].getOriginalFilename().substring(schemaFiles[i].getOriginalFilename().length()-3).equalsIgnoreCase("xsd")) {
