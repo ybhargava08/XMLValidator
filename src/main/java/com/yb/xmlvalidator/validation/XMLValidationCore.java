@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
 import com.yb.xmlvalidator.service.RegexConstants;
 
 public class XMLValidationCore {
-
+	
 	static Pattern patternFromURL = Pattern.compile(RegexConstants.regexSchemalocation);
 	
 	public void validateXMLAgainstSchema(InputStream xmlInputStream,StreamSource[] sourceSchemas) throws SAXException,IOException{
@@ -69,9 +69,9 @@ public class XMLValidationCore {
 		
 	}
 	
-	public InputStream returnFinalXmlAfterStrippingSoapEnv(String xml,InputStream is) {
+	public InputStream returnFinalXmlAfterStrippingSoapEnv(String xml,InputStream is) throws IOException {
 		xml = xml.replaceAll(RegexConstants.removeCommentsRegex, "").replaceAll(RegexConstants.replaceNewLineRegex, "");
-		try {
+		
 			String result = stripSoapEnv(xml,is);
 			if(null==result) {
 				return is;
@@ -79,10 +79,6 @@ public class XMLValidationCore {
 				
 				return new ByteArrayInputStream(result.getBytes());
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 	
 	 private String stripSoapEnv(String xml,InputStream is) throws IOException {
@@ -123,5 +119,16 @@ public class XMLValidationCore {
 				getAllXSDFromURL(getContentFromURL(xsd),xsdList);
 			}
 		}
-	
+	 
+	 public String checkForSlash(String input) {
+		 int lastIndex = input.lastIndexOf("/");
+		 if(lastIndex>=0) {
+			 input = input.substring(lastIndex+1, input.length());
+		 }
+		 lastIndex = input.lastIndexOf("\\");
+		 if(lastIndex>=0) {
+			 input = input.substring(lastIndex+1, input.length());
+		 }
+		return input; 
+	 }
 }
