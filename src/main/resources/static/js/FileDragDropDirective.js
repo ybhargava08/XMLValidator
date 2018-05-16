@@ -113,7 +113,7 @@ xmlValidatorApp.directive('fileDragDrop',['$compile','$rootScope',function($comp
 					attrs.allowedextn.indexOf(filename.substring(filename.length-4))>=0){
 				return true;
 			}
-			  console.log("extn not uploaded: "+filename);
+			  //console.log("extn not uploaded: "+filename);
 			    var data = {
 			    		msg : 'incorrectextn'+attrs.filefor,		
 			    };
